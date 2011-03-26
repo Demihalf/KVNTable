@@ -1,0 +1,4 @@
+*.user*
+tmp
+bin
+src/ui_*

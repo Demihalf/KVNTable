@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/new.png</file>
+        <file>icons/open.png</file>
+        <file>icons/quit.png</file>
+        <file>icons/save.png</file>
+        <file>icons/down.png</file>
+        <file>icons/list-add.png</file>
+        <file>icons/list-remove.png</file>
+        <file>icons/up.png</file>
+        <file>icons/icon48.png</file>
+        <file>icons/icon128.png</file>
+        <file>icons/icon32.png</file>
+        <file>icons/icon64.png</file>
+    </qresource>
+</RCC>
