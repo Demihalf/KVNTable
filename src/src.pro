@@ -22,11 +22,17 @@ FORMS    += mainwindow.ui \
     buttonslistwidget.ui \
     newtabledialog.ui
 
-MOC_DIR = ../tmp
-OBJECTS_DIR = ../tmp
-RCC_DIR = ../tmp
 RESOURCES += \
     resources.qrc
 
 OTHER_FILES += \
     style.css
+    
+icon.files += icons/icon128.png
+target.path = /usr/local/bin/
+icon.path = /usr/local/share/pixmaps/
+INSTALLS += target icon
+
+MOC_DIR = ../tmp
+OBJECTS_DIR = ../tmp
+RCC_DIR = ../tmp
