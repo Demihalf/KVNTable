@@ -1,5 +1,52 @@
-TableStandings {
-    background-color: #FFF;
+TableStandings {   
+	background-color: #FFD79C;
+	font-size: 36pt;
+	qproperty-showGrid: false;
+	qproperty-alternatingRowColors: true;
+	alternate-background-color: #FFE0B3;
+}
+
+QHeaderView::section 
+{	
+	background-color: #FFD79C;
+	border: none;
+}
+
+QMainWindow {
+    background-color: #FFD79C;
+}
+
+QTabWidget:tab {
+    border: none;
+}
+
+QTabWidget:pane { /* The tab widget frame */
+    border: none;
+    background-color: #FFD79C;
+}
+
+QHeaderView
+{
+	font-size: 16pt;
+}
+
+QLabel#lblTitle {
+    font-size: 26pt;
+}
+
+QLabel#lblStageName {
+    font-size: 26pt;
+    font-style: italic;
+}
+
+QLabel#lblPictureTopLeft {
+    qproperty-pixmap: url(./images/logo.png);
+}
+
+QLabel#lblPictureTopRight {
+    qproperty-pixmap: url(:/icons/icon128.png);
+}
+
+QLabel#lblDate {
     font-size: 18pt;
-    gridline-color: #FFF;
 }

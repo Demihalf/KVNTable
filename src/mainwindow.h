@@ -1,8 +1,3 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
-#include <QMainWindow>
-#include "tablestagestandings.h"
 /******************************************************************************
 ** KVNTable 0.1
 ** Copyright (C) 2011 Valery Kharitonov <kharvd@gmail.com>
@@ -31,6 +26,11 @@
 **
 ******************************************************************************/
 
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+#include "tablestagestandings.h"
 #include "tabletotalstandings.h"
 
 namespace Ui {
@@ -51,12 +51,18 @@ public slots:
 
 private slots:
     void aboutQt();
-
     void about();
+    void fullscreenToggled(bool isActivated);
+    void showSettingsDlg();
+    void loadStyleSheet();
+    void changeStageTitle(int curr);
+    void resizeTeamSections(int newSize);
 
 private:
     void deleteTabs();
+    void loadSettings();
 
+    static const QString iniFile;
     Ui::wndMain *ui;
 };
 

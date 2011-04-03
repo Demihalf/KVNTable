@@ -41,6 +41,14 @@ public:
 
     virtual ~TableStandings() {}
 
+    void resizeTeamSection(int newSize);
+
+signals:
+    void teamSectionWidthChanged(int newSize);
+
+private slots:
+    void sectionWidthChanged(int index, int, int newSize);
+
 protected:
     virtual void resizeEvent(QResizeEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);

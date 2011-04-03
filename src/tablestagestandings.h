@@ -36,12 +36,14 @@ class TableStageStandings : public TableStandings
     Q_OBJECT
 
 public:
-    TableStageStandings(const QStringList &teams, int numOfMarks,
+    TableStageStandings(const QStringList &teams, int numOfMarks, int stageNumber,
                    QWidget *parent = 0);
     virtual ~TableStageStandings();
 
     QList<double> averages();
     double averageAt(int row);
+
+    void setIntermediateResults(const QList<double> &mark);
 
 public slots:
     void recalculateAverage();
@@ -51,6 +53,12 @@ signals:
 
 protected:
     virtual void createHeader();
+
+    // Redefinition
+    virtual void createCells();
+
+private:
+    int m_stageNumber;
 };
 
 #endif // TABLESTAGESTANDINGS_H

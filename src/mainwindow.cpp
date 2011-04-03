@@ -32,15 +32,65 @@
 #include "tablestagestandings.h"
 #include "tabletotalstandings.h"
 #include <QMessageBox>
+#include <QSettings>
+#include "settingsdialog.h"
+#include <QDate>
+#include <QFile>
+#include <QDebug>
+
+const QString MainWindow::iniFile = "settings.ini";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::wndMain)
 {
     ui->setupUi(this);
-    ui->statusBar->showMessage("Готов", 1000);
+
+    loadSettings();
 
     connect(ui->actNewTable, SIGNAL(triggered()), SLOT(newTable()));
+    connect(ui->actFullscreen, SIGNAL(triggered(bool)),
+            SLOT(fullscreenToggled(bool)));
+    connect(ui->actSettings, SIGNAL(triggered()), SLOT(showSettingsDlg()));
+    connect(ui->actStyleSheetReload, SIGNAL(triggered()),
+            SLOT(loadStyleSheet()));
+    connect(ui->tabs, SIGNAL(currentChanged(int)),
+            SLOT(changeStageTitle(int)));
+
+    ui->lblDate->setText(QDate(QDate::currentDate()).toString("dd.MM.yyyy"));
+
+    ui->statusBar->showMessage("Готов", 1000);
+}
+
+void MainWindow::changeStageTitle(int curr)
+{
+    ui->lblStageName->setText(ui->tabs->tabText(curr));
+}
+
+void MainWindow::loadStyleSheet()
+{
+    QFile style("style.css");
+
+    if (style.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qApp->setStyleSheet(style.readAll());
+    }
+}
+
+void MainWindow::loadSettings()
+{
+    QSettings sets(iniFile, QSettings::IniFormat);
+    ui->lblTitle->setText(sets.value("title_text").toString());
+}
+
+void MainWindow::showSettingsDlg()
+{
+    SettingsDialog *dlg = new SettingsDialog(iniFile, this);
+
+    if (dlg->exec()) {
+        loadSettings();
+    }
+
+    delete dlg;
 }
 
 void MainWindow::newTable()
@@ -54,17 +104,33 @@ void MainWindow::newTable()
         QStringList teams = dialog->teams();
         QStringList stages = dialog->stages();
 
-        foreach (QString stage, stages) {
+        for (int i = 0; i < stages.size(); i++) {
             TableStageStandings *wgt = new TableStageStandings(teams,
-                                                               numOfJudges);
-            ui->tabs->addTab(wgt, stage);
+                                                               numOfJudges, i);
+            ui->tabs->addTab(wgt, stages.at(i));
 
             connect(wgt, SIGNAL(marksChanged()), SLOT(marksChangedStage()));
+            connect(wgt, SIGNAL(teamSectionWidthChanged(int)),
+                    SLOT(resizeTeamSections(int)));
+
+            // Hack for auto-resizing (we need to call resizeEvent())
+            ui->tabs->setCurrentWidget(wgt);
         }
 
         TableTotalStandings *total = new TableTotalStandings(stages, teams);
         ui->tabs->addTab(total, "Общий итог");
+
+        connect(total, SIGNAL(teamSectionWidthChanged(int)),
+                SLOT(resizeTeamSections(int)));
+
+        // Hack for auto-resizing (we need to call resizeEvent())
+        ui->tabs->setCurrentWidget(total);
     }
+
+    ui->tabs->setCurrentIndex(0);
+    changeStageTitle(0);
+
+    delete dialog;
 }
 
 void MainWindow::deleteTabs()
@@ -98,6 +164,55 @@ void MainWindow::marksChangedStage()
     }
 
     total->setMarks(allMarks);
+
+    // Intermediate marks
+    for (int stage = 1; stage < tabsCount - 1; stage++) {
+        TableStageStandings *wgt = qobject_cast<TableStageStandings *>
+                (ui->tabs->widget(stage));
+
+        int teams = wgt->averages().size();
+        QList<double> sums;
+
+        for (int i = 0; i < teams; i++) {
+            double sum = 0;
+
+            for (int j = 0; j <= stage; j++) {
+                sum += allMarks[j][i];
+            }
+
+            sums << sum;
+        }
+
+        wgt->setIntermediateResults(sums);
+    }
+}
+
+void MainWindow::fullscreenToggled(bool isActivated)
+{
+    if (isActivated) {
+        showFullScreen();
+        ui->mainToolBar->hide();
+    } else {
+        showNormal();
+        ui->mainToolBar->show();
+    }
+}
+
+void MainWindow::resizeTeamSections(int newSize)
+{
+    for (int i = 0; i < ui->tabs->count(); ++i) {
+        TableStandings *tmp = qobject_cast<TableStandings *>(ui->tabs->widget(i));
+        Q_ASSERT(tmp);
+
+        // To prevent recursion
+        disconnect(tmp, SIGNAL(teamSectionWidthChanged(int)), this,
+                   SLOT(resizeTeamSections(int)));
+
+        tmp->resizeTeamSection(newSize);
+
+        connect(tmp, SIGNAL(teamSectionWidthChanged(int)),
+                SLOT(resizeTeamSections(int)));
+    }
 }
 
 MainWindow::~MainWindow()

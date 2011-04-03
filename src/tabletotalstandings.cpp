@@ -37,6 +37,8 @@ TableTotalStandings::TableTotalStandings(const QStringList &stages,
     TableStandings(teams, stages.size(), parent)
 {
     createHeader();
+    createTeams();
+    createCells();
 }
 
 void TableTotalStandings::createHeader()

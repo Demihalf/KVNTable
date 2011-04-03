@@ -11,16 +11,19 @@ SOURCES  += main.cpp\
     tablestagestandings.cpp \
     tabletotalstandings.cpp \
     newtabledialog.cpp \
-    tablestandings.cpp
+    tablestandings.cpp \
+    settingsdialog.cpp
 HEADERS  += mainwindow.h \
     buttonslistwidget.h \
     tablestagestandings.h \
     newtabledialog.h \
     tabletotalstandings.h \
-    tablestandings.h
+    tablestandings.h \
+    settingsdialog.h
 FORMS    += mainwindow.ui \
     buttonslistwidget.ui \
-    newtabledialog.ui
+    newtabledialog.ui \
+    settingsdialog.ui
 
 RESOURCES += \
     resources.qrc

@@ -38,13 +38,13 @@ TableStandings::TableStandings(const QStringList &teams, int middleCells,
 {
     setColumnCount(m_numOfMiddleCells + 2);
 
-    createTeams();
-    createCells();
-
     setSelectionMode(QAbstractItemView::SingleSelection);
     verticalHeader()->hide();
 
     setAlternatingRowColors(true);
+
+    connect(horizontalHeader(), SIGNAL(sectionResized(int,int,int)),
+            SLOT(sectionWidthChanged(int,int,int)));
 }
 
 void TableStandings::createTeams()
@@ -58,6 +58,18 @@ void TableStandings::createTeams()
 
         insertRow(rows);
         setItem(rows, 0, it);
+    }
+}
+
+void TableStandings::resizeTeamSection(int newSize)
+{
+    horizontalHeader()->resizeSection(0, newSize);
+}
+
+void TableStandings::sectionWidthChanged(int index, int, int newSize)
+{
+    if (index == 0) {
+        emit teamSectionWidthChanged(newSize);
     }
 }
 
@@ -85,10 +97,8 @@ void TableStandings::resizeEvent(QResizeEvent *event)
 
 void TableStandings::mousePressEvent(QMouseEvent *event)
 {
-    qDebug() << "mousePress";
     if (!itemAt(event->pos())) {
         setCurrentCell(0, 0, QItemSelectionModel::Clear);
-        qDebug() << "Clear";
     } else {
         QTableWidget::mousePressEvent(event);
     }

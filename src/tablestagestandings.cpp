@@ -31,10 +31,14 @@
 #include <QResizeEvent>
 
 TableStageStandings::TableStageStandings(const QStringList &teams, int numOfMarks,
-                               QWidget *parent) :
-    TableStandings(teams, numOfMarks, parent)
+                                         int stageNumber, QWidget *parent) :
+    TableStandings(teams, numOfMarks, parent), m_stageNumber(stageNumber)
 {
+    setColumnCount(m_numOfMiddleCells + 3 + (m_stageNumber != 0 ? 1 : 0));
+
     createHeader();
+    createTeams();
+    createCells();
 
     connect(this, SIGNAL(cellChanged(int,int)), SLOT(recalculateAverage()));
 }
@@ -48,7 +52,12 @@ void TableStageStandings::createHeader()
         headerLabels << QString("%1").arg(i);
     }
 
-    headerLabels << "Средний балл";
+    headerLabels << "Штраф" << "Балл";
+
+    if (m_stageNumber != 0) {
+        headerLabels << "Результат";
+    }
+
     setHorizontalHeaderLabels(headerLabels);
 
     horizontalHeader()->setResizeMode(QHeaderView::Stretch);
@@ -57,12 +66,44 @@ void TableStageStandings::createHeader()
     verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 }
 
+void TableStageStandings::setIntermediateResults(const QList<double> &mark)
+{
+    for (int row = 0; row < m_teams.size(); row++) {
+        item(row, columnCount() - 1)->setText(QString("%1").arg(mark[row]));
+    }
+}
+
+void TableStageStandings::createCells()
+{
+    int lastCol = columnCount() - 1;
+
+    for (int row = 0; row < m_teams.size(); row++) {
+        for (int col = 1; col <= lastCol; col++) {
+            QTableWidgetItem * it = new QTableWidgetItem();
+
+            it->setTextAlignment(Qt::AlignCenter);
+
+            setItem(row, col, it);
+        }
+
+        // Average mark
+        item(row, m_numOfMiddleCells + 2)->setFlags(Qt::ItemIsSelectable |
+                                                    Qt::ItemIsEnabled);
+
+        // Intermediate result
+        if (m_stageNumber != 0) {
+            item(row, m_numOfMiddleCells + 3)->setFlags(Qt::ItemIsSelectable |
+                                                        Qt::ItemIsEnabled);
+        }
+    }
+}
+
 void TableStageStandings::recalculateAverage()
 {
     QList<double> avs = averages();
 
     for (int i = 0; i < rowCount(); i++) {
-        item(i, columnCount() - 1)->setText(QString("%1").arg(avs[i]));
+        item(i, m_numOfMiddleCells + 2)->setText(QString("%1").arg(avs[i]));
     }
 
     emit marksChanged();
@@ -82,11 +123,16 @@ QList<double> TableStageStandings::averages()
 double TableStageStandings::averageAt(int row)
 {
     double sum = 0;
-    for (int i = 1; i < columnCount() - 1; i++) {
+    for (int i = 1; i <= m_numOfMiddleCells; i++) {
         sum += item(row, i)->text().toDouble();
     }
 
-    return sum / double(columnCount() - 2);
+    double penalty = item(row, m_numOfMiddleCells + 1)->text().toDouble();
+    double avrg = sum / double(m_numOfMiddleCells);
+
+    avrg -= penalty;
+
+    return avrg;
 }
 
 TableStageStandings::~TableStageStandings()
