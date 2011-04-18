@@ -85,6 +85,7 @@ void TableStandings::createCells()
 
             setItem(row, col, it);
         }
+
         // Total/average marks
         item(row, lastCol)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }

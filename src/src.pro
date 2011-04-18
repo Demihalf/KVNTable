@@ -30,6 +30,8 @@ RESOURCES += \
 
 OTHER_FILES += \
     style.css
+
+RC_FILE = kvn-table.rc
     
 icon.files += icons/icon128.png
 target.path = /usr/local/bin/

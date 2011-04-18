@@ -37,6 +37,7 @@
 #include <QDate>
 #include <QFile>
 #include <QDebug>
+#include <QCloseEvent>
 
 const QString MainWindow::iniFile = "settings.ini";
 
@@ -48,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     loadSettings();
 
+    addAction(ui->actExitFullscreen);
+
     connect(ui->actNewTable, SIGNAL(triggered()), SLOT(newTable()));
     connect(ui->actFullscreen, SIGNAL(triggered(bool)),
             SLOT(fullscreenToggled(bool)));
@@ -56,6 +59,8 @@ MainWindow::MainWindow(QWidget *parent) :
             SLOT(loadStyleSheet()));
     connect(ui->tabs, SIGNAL(currentChanged(int)),
             SLOT(changeStageTitle(int)));
+    connect(ui->actExitFullscreen, SIGNAL(triggered()),
+            SLOT(exitFullscreen()));
 
     ui->lblDate->setText(QDate(QDate::currentDate()).toString("dd.MM.yyyy"));
 
@@ -190,18 +195,30 @@ void MainWindow::marksChangedStage()
 void MainWindow::fullscreenToggled(bool isActivated)
 {
     if (isActivated) {
+        wasMaximized = isMaximized();
         showFullScreen();
         ui->mainToolBar->hide();
     } else {
         showNormal();
+        if (wasMaximized) {
+            showMaximized();
+        }
         ui->mainToolBar->show();
+    }
+}
+
+void MainWindow::exitFullscreen()
+{
+    if (isFullScreen()) {
+        ui->actFullscreen->trigger();
     }
 }
 
 void MainWindow::resizeTeamSections(int newSize)
 {
     for (int i = 0; i < ui->tabs->count(); ++i) {
-        TableStandings *tmp = qobject_cast<TableStandings *>(ui->tabs->widget(i));
+        TableStandings *tmp = qobject_cast<TableStandings *>
+                (ui->tabs->widget(i));
         Q_ASSERT(tmp);
 
         // To prevent recursion
@@ -241,4 +258,17 @@ void MainWindow::about()
                        "Для дополнительной информации смотрите "
                        "<a href=\"http://www.gnu.org/licenses/gpl.html\">"
                        "http://www.gnu.org/licenses/gpl.html</a></p>");
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton btn =
+            QMessageBox::question(this, "Выход", "Вы действительно хотите выйти?",
+                          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+    if (btn == QMessageBox::Yes) {
+        event->accept();
+    } else {
+        event->ignore();
+    }
 }
