@@ -50,12 +50,13 @@ private slots:
     void sectionWidthChanged(int index, int, int newSize);
 
 protected:
-    virtual void resizeEvent(QResizeEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
 
     virtual void createHeader() = 0;
     virtual void createTeams();
     virtual void createCells();
+    virtual void createMiddleCells();
+    virtual void createLastCells() = 0;
 
     QStringList m_teams;
     int m_numOfMiddleCells;

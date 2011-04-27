@@ -51,6 +51,7 @@ public slots:
 
 protected:
     virtual void createHeader();
+    virtual void createLastCells();
 };
 
 #endif // TABLETOTALSTANDINGS_H

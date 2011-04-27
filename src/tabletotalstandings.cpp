@@ -36,9 +36,25 @@ TableTotalStandings::TableTotalStandings(const QStringList &stages,
                                          QWidget *parent) :
     TableStandings(teams, stages.size(), parent)
 {
-    createHeader();
-    createTeams();
+    setColumnCount(m_numOfMiddleCells + 2);
+
     createCells();
+}
+
+void TableTotalStandings::createLastCells()
+{
+    for (int row = 0; row < m_teams.size(); row++) {
+        for (int col = m_numOfMiddleCells + 1; col < columnCount(); col++) {
+            QTableWidgetItem * it = new QTableWidgetItem();
+            it->setTextAlignment(Qt::AlignCenter);
+
+            setItem(row, col, it);
+        }
+
+        // Total/average marks
+        item(row, columnCount() - 1)->setFlags(Qt::ItemIsSelectable
+                                               | Qt::ItemIsEnabled);
+    }
 }
 
 void TableTotalStandings::createHeader()

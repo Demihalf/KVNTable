@@ -36,8 +36,6 @@ TableStageStandings::TableStageStandings(const QStringList &teams, int numOfMark
 {
     setColumnCount(m_numOfMiddleCells + 3 + (m_stageNumber != 0 ? 1 : 0));
 
-    createHeader();
-    createTeams();
     createCells();
 
     connect(this, SIGNAL(cellChanged(int,int)), SLOT(recalculateAverage()));
@@ -73,14 +71,11 @@ void TableStageStandings::setIntermediateResults(const QList<double> &mark)
     }
 }
 
-void TableStageStandings::createCells()
+void TableStageStandings::createLastCells()
 {
-    int lastCol = columnCount() - 1;
-
     for (int row = 0; row < m_teams.size(); row++) {
-        for (int col = 1; col <= lastCol; col++) {
+        for (int col = m_numOfMiddleCells + 1; col < columnCount(); col++) {
             QTableWidgetItem * it = new QTableWidgetItem();
-
             it->setTextAlignment(Qt::AlignCenter);
 
             setItem(row, col, it);

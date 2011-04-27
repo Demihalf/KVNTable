@@ -64,6 +64,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->lblDate->setText(QDate(QDate::currentDate()).toString("dd.MM.yyyy"));
 
+    showMaximized();
+
     ui->statusBar->showMessage("Готов", 1000);
 }
 
@@ -117,9 +119,6 @@ void MainWindow::newTable()
             connect(wgt, SIGNAL(marksChanged()), SLOT(marksChangedStage()));
             connect(wgt, SIGNAL(teamSectionWidthChanged(int)),
                     SLOT(resizeTeamSections(int)));
-
-            // Hack for auto-resizing (we need to call resizeEvent())
-            ui->tabs->setCurrentWidget(wgt);
         }
 
         TableTotalStandings *total = new TableTotalStandings(stages, teams);
@@ -127,9 +126,6 @@ void MainWindow::newTable()
 
         connect(total, SIGNAL(teamSectionWidthChanged(int)),
                 SLOT(resizeTeamSections(int)));
-
-        // Hack for auto-resizing (we need to call resizeEvent())
-        ui->tabs->setCurrentWidget(total);
     }
 
     ui->tabs->setCurrentIndex(0);

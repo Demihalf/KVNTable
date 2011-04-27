@@ -36,8 +36,6 @@ TableStandings::TableStandings(const QStringList &teams, int middleCells,
                                QWidget *parent) :
     QTableWidget(parent), m_teams(teams), m_numOfMiddleCells(middleCells)
 {
-    setColumnCount(m_numOfMiddleCells + 2);
-
     setSelectionMode(QAbstractItemView::SingleSelection);
     verticalHeader()->hide();
 
@@ -45,13 +43,15 @@ TableStandings::TableStandings(const QStringList &teams, int middleCells,
 
     connect(horizontalHeader(), SIGNAL(sectionResized(int,int,int)),
             SLOT(sectionWidthChanged(int,int,int)));
+
+    horizontalHeader()->resizeSection(0, size().width() / 5);
 }
 
 void TableStandings::createTeams()
 {
     foreach (QString team, m_teams) {
         int rows = rowCount();
-        QTableWidgetItem * it = new QTableWidgetItem(team);
+        QTableWidgetItem *it = new QTableWidgetItem(team);
 
         it->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         it->setTextAlignment(Qt::AlignCenter);
@@ -75,25 +75,23 @@ void TableStandings::sectionWidthChanged(int index, int, int newSize)
 
 void TableStandings::createCells()
 {
-    int lastCol = columnCount() - 1;
+    createHeader();
+    createTeams();
+    createMiddleCells();
+    createLastCells();
+}
 
+void TableStandings::createMiddleCells()
+{
     for (int row = 0; row < m_teams.size(); row++) {
-        for (int col = 1; col <= m_numOfMiddleCells + 1; col++) {
+        for (int col = 1; col <= m_numOfMiddleCells; col++) {
             QTableWidgetItem * it = new QTableWidgetItem();
 
             it->setTextAlignment(Qt::AlignCenter);
 
             setItem(row, col, it);
         }
-
-        // Total/average marks
-        item(row, lastCol)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
-}
-
-void TableStandings::resizeEvent(QResizeEvent *event)
-{
-    horizontalHeader()->resizeSection(0, event->size().width() / 5);
 }
 
 void TableStandings::mousePressEvent(QMouseEvent *event)

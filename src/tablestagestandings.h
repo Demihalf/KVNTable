@@ -55,7 +55,7 @@ protected:
     virtual void createHeader();
 
     // Redefinition
-    virtual void createCells();
+    virtual void createLastCells();
 
 private:
     int m_stageNumber;
