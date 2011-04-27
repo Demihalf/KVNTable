@@ -2,11 +2,13 @@
 #include "ui_settingsdialog.h"
 #include <QSettings>
 
-SettingsDialog::SettingsDialog(const QString &fileName, QWidget *parent) :
+SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SettingsDialog), m_filename(fileName)
+    ui(new Ui::SettingsDialog)
 {
     ui->setupUi(this);
+
+    m_filename = qApp->property("iniFile").toString();
 
     connect(ui->buttonBox, SIGNAL(accepted()), SLOT(saveSettings()));
 

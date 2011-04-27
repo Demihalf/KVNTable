@@ -46,7 +46,9 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setOrganizationName("Валерий Харитонов");
     QCoreApplication::setApplicationName("Турнирная таблица КВН");
-    QCoreApplication::setApplicationVersion("0.1");
+    QCoreApplication::setApplicationVersion("0.2");
+
+    a.setProperty("iniFile", QVariant("settings.ini"));
 
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));

@@ -67,7 +67,7 @@ private:
     void loadSettings();
 
     bool wasMaximized;
-    static const QString iniFile;
+    QString m_iniFile;
     Ui::wndMain *ui;
 };
 

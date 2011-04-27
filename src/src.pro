@@ -29,7 +29,8 @@ RESOURCES += \
     resources.qrc
 
 OTHER_FILES += \
-    style.css
+    style.css \
+    about_string.txt
 
 RC_FILE = kvn-table.rc
     

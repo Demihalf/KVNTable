@@ -39,13 +39,13 @@
 #include <QDebug>
 #include <QCloseEvent>
 
-const QString MainWindow::iniFile = "settings.ini";
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::wndMain)
 {
     ui->setupUi(this);
+
+    m_iniFile = qApp->property("iniFile").toString();
 
     loadSettings();
 
@@ -83,13 +83,13 @@ void MainWindow::loadStyleSheet()
 
 void MainWindow::loadSettings()
 {
-    QSettings sets(iniFile, QSettings::IniFormat);
+    QSettings sets(m_iniFile, QSettings::IniFormat);
     ui->lblTitle->setText(sets.value("title_text").toString());
 }
 
 void MainWindow::showSettingsDlg()
 {
-    SettingsDialog *dlg = new SettingsDialog(iniFile, this);
+    SettingsDialog *dlg = new SettingsDialog(this);
 
     if (dlg->exec()) {
         loadSettings();
@@ -245,19 +245,15 @@ void MainWindow::aboutQt()
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, "О программе", "<p>Программа KVNTable предназначена "
-                       "для создания турнирных таблиц игр КВН. По всем вопросам, "
-                       "касающимся этой программы вы можете обращаться по email "
-                       "<a href=\"mailto:kharvd@gmail.com\">kharvd@gmail.com</a></p>"
+    QFile f(":/about_string.txt");
+    f.open(QIODevice::ReadOnly | QIODevice::Text);
 
-                       "<p>Copyright © 2011 Валерий Харитонов</p>"
+    QTextStream stream(&f);
 
-                       "<p>Это программа распространяется БЕЗ ВСЯКИХ ГАРАНТИЙ. "
-                       "Это свободное программное обеспечение, и Вы можете "
-                       "распространять её в соответствии с конкретными условиями. "
-                       "Для дополнительной информации смотрите "
-                       "<a href=\"http://www.gnu.org/licenses/gpl.html\">"
-                       "http://www.gnu.org/licenses/gpl.html</a></p>");
+    QString about = stream.readAll().arg(qApp->applicationName())
+            .arg(qApp->applicationVersion()).replace("\n", " ");
+
+    QMessageBox::about(this, "О программе", about);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
