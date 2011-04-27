@@ -1,5 +1,5 @@
 /******************************************************************************
-** KVNTable 0.1
+** KVNTable 0.2
 ** Copyright (C) 2011 Valery Kharitonov <kharvd@gmail.com>
 **
 ** This file is part of KVNTable.
