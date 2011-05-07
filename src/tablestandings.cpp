@@ -49,20 +49,35 @@ TableStandings::TableStandings(const QStringList &teams, int middleCells,
     horizontalHeader()->resizeSection(0, size().width() / 5);
 }
 
-TableItems TableStandings::items()
+TableData TableStandings::getData()
 {
-    TableItems tmp;
-    tmp.resize(rowCount());
+    TableData data;
 
-    for (int row = 0; row < rowCount(); row++) {
-        tmp[row].resize(columnCount());
+    data.resize(rowCount());
 
-        for (int col = 0; col < columnCount(); col++) {
-            tmp[row][col] = *item(row, col);
+    for (int i = 0; i < rowCount(); i++) {
+        data[i].resize(columnCount());
+        for (int j = 0; j < columnCount(); j++) {
+            data[i][j] = *item(i, j);
         }
     }
 
-    return tmp;
+    return data;
+}
+
+void TableStandings::setData(const TableData &data)
+{
+    clearContents();
+
+    setRowCount(data.size());
+    setColumnCount(data[0].size());
+
+    for (int i = 0; i < rowCount(); i++) {
+        for (int j = 0; j < columnCount(); j++) {
+            QTableWidgetItem *it = new QTableWidgetItem(data[i][j]);
+            setItem(i, j, it);
+        }
+    }
 }
 
 void TableStandings::createTeams()

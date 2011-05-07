@@ -51,7 +51,7 @@ void TableStageStandings::createHeader()
         headerLabels << QString("%1").arg(i);
     }
 
-    headerLabels << "Штраф" << "Балл";
+    headerLabels << "Штраф" << "Балл";clearContents();
 
     if (m_stageNumber != 0) {
         headerLabels << "Результат";

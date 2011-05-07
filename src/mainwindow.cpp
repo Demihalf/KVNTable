@@ -62,7 +62,8 @@ MainWindow::MainWindow(QWidget *parent) :
             SLOT(changeStageTitle(int)));
     connect(ui->actExitFullscreen, SIGNAL(triggered()),
             SLOT(exitFullscreen()));
-    connect(ui->actSaveAs, SIGNAL(triggered()), SLOT(saveAs()));
+    connect(ui->actSave, SIGNAL(triggered()), SLOT(saveTable()));
+    connect(ui->actOpen, SIGNAL(triggered()), SLOT(openTable()));
 
     ui->lblDate->setText(QDate(QDate::currentDate()).toString("dd.MM.yyyy"));
 
@@ -71,21 +72,51 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->statusBar->showMessage("Готов", 1000);
 }
 
-void MainWindow::saveAs()
+void MainWindow::openTable()
 {
-    QList<TableItems> tables;
+    m_stages.clear();
 
-    for (int i = 0; i < ui->tabs->count(); i++) {
-        tables << qobject_cast<TableStandings *>(ui->tabs->widget(i))->items();
+    QList<TableData> data;
+
+    QFile f("output");
+    f.open(QIODevice::ReadOnly);
+
+    QDataStream stream(&f);
+    stream >> m_stages;
+    stream >> data;
+
+    deleteTabs();
+
+    for (int i = 0; i < data.size(); i++) {
+        TableStageStandings *wgt = new TableStageStandings(QStringList(),
+                                                           5, i);
+        wgt->setData(data[i]);
+        ui->tabs->addTab(wgt, m_stages.at(i));
+
+        connect(wgt, SIGNAL(marksChanged()), SLOT(marksChangedStage()));
+        connect(wgt, SIGNAL(teamSectionWidthChanged(int)),
+                SLOT(resizeTeamSections(int)));
     }
 
-    QFile file("test");
-    file.open(QIODevice::WriteOnly);
+    TableTotalStandings *total = new TableTotalStandings(m_stages, QStringList());
+    total->setData(data.last());
+    ui->tabs->addTab(total, "Общий итог");
+}
 
-    QDataStream data(&file);
+void MainWindow::saveTable()
+{
+    QList<TableData> data;
 
-    data << tables;
-    qDebug() << "done";
+    for (int i = 0; i < ui->tabs->count(); i++) {
+        data << qobject_cast<TableStandings *>(ui->tabs->widget(i))->getData();
+    }
+
+    QFile f("output");
+    f.open(QIODevice::WriteOnly);
+
+    QDataStream stream(&f);
+    stream << m_stages;
+    stream << data;
 }
 
 void MainWindow::changeStageTitle(int curr)
@@ -128,19 +159,19 @@ void MainWindow::newTable()
         deleteTabs();
 
         QStringList teams = dialog->teams();
-        QStringList stages = dialog->stages();
+        m_stages = dialog->stages();
 
-        for (int i = 0; i < stages.size(); i++) {
+        for (int i = 0; i < m_stages.size(); i++) {
             TableStageStandings *wgt = new TableStageStandings(teams,
                                                                numOfJudges, i);
-            ui->tabs->addTab(wgt, stages.at(i));
+            ui->tabs->addTab(wgt, m_stages.at(i));
 
             connect(wgt, SIGNAL(marksChanged()), SLOT(marksChangedStage()));
             connect(wgt, SIGNAL(teamSectionWidthChanged(int)),
                     SLOT(resizeTeamSections(int)));
         }
 
-        TableTotalStandings *total = new TableTotalStandings(stages, teams);
+        TableTotalStandings *total = new TableTotalStandings(m_stages, teams);
         ui->tabs->addTab(total, "Общий итог");
 
         connect(total, SIGNAL(teamSectionWidthChanged(int)),
