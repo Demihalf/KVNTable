@@ -61,12 +61,8 @@ private slots:
     void changeStageTitle(int curr);
     void resizeTeamSections(int newSize);
     void exitFullscreen();
-<<<<<<< HEAD
-    void saveAs();
-=======
     void saveTable();
     void openTable();
->>>>>>> 155a0315605b9cfc2a3a4d2ece0b06fc82f28bdb
 
 private:
     void deleteTabs();

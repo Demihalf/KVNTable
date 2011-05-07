@@ -39,6 +39,7 @@
 #include <QDebug>
 #include <QCloseEvent>
 #include <QDataStream>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -74,49 +75,67 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::openTable()
 {
-    m_stages.clear();
+    QString fileName = QFileDialog
+            ::getOpenFileName(this, "Открыть файл таблицы", QString(),
+                              "Файлы турнирных таблиц КВН (*.kvn)");
 
-    QList<TableData> data;
+    if (!fileName.isEmpty()) {
+        m_stages.clear();
 
-    QFile f("output");
-    f.open(QIODevice::ReadOnly);
+        QList<TableData> data;
 
-    QDataStream stream(&f);
-    stream >> m_stages;
-    stream >> data;
+        QFile f(fileName);
+        f.open(QIODevice::ReadOnly);
 
-    deleteTabs();
+        QDataStream stream(&f);
+        stream >> m_stages;
+        stream >> data;
 
-    for (int i = 0; i < data.size(); i++) {
-        TableStageStandings *wgt = new TableStageStandings(QStringList(),
-                                                           5, i);
-        wgt->setData(data[i]);
-        ui->tabs->addTab(wgt, m_stages.at(i));
+        deleteTabs();
 
-        connect(wgt, SIGNAL(marksChanged()), SLOT(marksChangedStage()));
-        connect(wgt, SIGNAL(teamSectionWidthChanged(int)),
-                SLOT(resizeTeamSections(int)));
+        for (int i = 0; i < data.size() - 1; i++) {
+            TableStageStandings *wgt = new TableStageStandings(QStringList(),
+                                                               5, i);
+            wgt->setData(data[i]);
+            ui->tabs->addTab(wgt, m_stages.at(i));
+
+            connect(wgt, SIGNAL(marksChanged()), SLOT(marksChangedStage()));
+            connect(wgt, SIGNAL(teamSectionWidthChanged(int)),
+                    SLOT(resizeTeamSections(int)));
+        }
+
+        TableTotalStandings *total = new TableTotalStandings(m_stages, QStringList());
+        total->setData(data.last());
+        ui->tabs->addTab(total, "Общий итог");
     }
-
-    TableTotalStandings *total = new TableTotalStandings(m_stages, QStringList());
-    total->setData(data.last());
-    ui->tabs->addTab(total, "Общий итог");
 }
 
 void MainWindow::saveTable()
 {
-    QList<TableData> data;
+    QString fileName = QFileDialog
+            ::getSaveFileName(this, "Сохранить файл таблицы", QString(),
+                              "Файлы турнирных таблиц КВН (*.kvn)");
+    if (!fileName.isEmpty()) {
+        QList<TableData> data;
 
-    for (int i = 0; i < ui->tabs->count(); i++) {
-        data << qobject_cast<TableStandings *>(ui->tabs->widget(i))->getData();
+        for (int i = 0; i < ui->tabs->count(); i++) {
+            data << qobject_cast<TableStandings *>(ui->tabs->widget(i))->getData();
+        }
+
+        QFileInfo info(fileName);
+
+        if (info.suffix().isEmpty()) {
+            fileName += ".kvn";
+        }
+
+        QFile f(fileName);
+        f.open(QIODevice::WriteOnly);
+
+        QDataStream stream(&f);
+        stream << m_stages;
+        stream << data;
     }
 
-    QFile f("output");
-    f.open(QIODevice::WriteOnly);
-
-    QDataStream stream(&f);
-    stream << m_stages;
-    stream << data;
 }
 
 void MainWindow::changeStageTitle(int curr)

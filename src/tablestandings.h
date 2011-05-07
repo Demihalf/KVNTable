@@ -44,7 +44,6 @@ public:
     virtual ~TableStandings() {}
 
     void resizeTeamSection(int newSize);
-    virtual TableItems items();
 
     virtual TableData getData();
     virtual void setData(const TableData &data);
@@ -57,6 +56,9 @@ private slots:
 
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
+
+    virtual void disconnectSignals() {}
+    virtual void reconnectSignals() {}
 
     virtual void createHeader() = 0;
     virtual void createTeams();

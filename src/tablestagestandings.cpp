@@ -42,6 +42,16 @@ TableStageStandings::TableStageStandings(const QStringList &teams, int numOfMark
     connect(this, SIGNAL(cellChanged(int,int)), SLOT(recalculateAverage()));
 }
 
+void TableStageStandings::disconnectSignals()
+{
+    disconnect(this, SLOT(recalculateAverage()));
+}
+
+void TableStageStandings::reconnectSignals()
+{
+    connect(this, SIGNAL(cellChanged(int,int)), SLOT(recalculateAverage()));
+}
+
 void TableStageStandings::createHeader()
 {
     QStringList headerLabels;

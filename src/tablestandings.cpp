@@ -67,6 +67,8 @@ TableData TableStandings::getData()
 
 void TableStandings::setData(const TableData &data)
 {
+    disconnectSignals();
+
     clearContents();
 
     setRowCount(data.size());
@@ -78,6 +80,8 @@ void TableStandings::setData(const TableData &data)
             setItem(i, j, it);
         }
     }
+
+    reconnectSignals();
 }
 
 void TableStandings::createTeams()

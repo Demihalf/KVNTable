@@ -54,6 +54,9 @@ signals:
 protected:
     virtual void createHeader();
 
+    virtual void disconnectSignals();
+    virtual void reconnectSignals();
+
     // Redefinition
     virtual void createLastCells();
 
