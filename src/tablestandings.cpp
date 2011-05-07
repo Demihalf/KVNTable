@@ -44,20 +44,40 @@ TableStandings::TableStandings(const QStringList &teams, int middleCells,
     connect(horizontalHeader(), SIGNAL(sectionResized(int,int,int)),
             SLOT(sectionWidthChanged(int,int,int)));
 
+    setRowCount(teams.size());
+
     horizontalHeader()->resizeSection(0, size().width() / 5);
+}
+
+TableItems TableStandings::items()
+{
+    TableItems tmp;
+    tmp.resize(rowCount());
+
+    for (int row = 0; row < rowCount(); row++) {
+        tmp[row].resize(columnCount());
+
+        for (int col = 0; col < columnCount(); col++) {
+            tmp[row][col] = *item(row, col);
+        }
+    }
+
+    return tmp;
 }
 
 void TableStandings::createTeams()
 {
+    int row = 0;
+
     foreach (QString team, m_teams) {
-        int rows = rowCount();
         QTableWidgetItem *it = new QTableWidgetItem(team);
 
         it->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         it->setTextAlignment(Qt::AlignCenter);
 
-        insertRow(rows);
-        setItem(rows, 0, it);
+        setItem(row, 0, it);
+
+        row++;
     }
 }
 
@@ -75,7 +95,6 @@ void TableStandings::sectionWidthChanged(int index, int, int newSize)
 
 void TableStandings::createCells()
 {
-    createHeader();
     createTeams();
     createMiddleCells();
     createLastCells();

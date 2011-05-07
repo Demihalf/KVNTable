@@ -38,6 +38,7 @@ TableTotalStandings::TableTotalStandings(const QStringList &stages,
 {
     setColumnCount(m_numOfMiddleCells + 2);
 
+    createHeader();
     createCells();
 }
 

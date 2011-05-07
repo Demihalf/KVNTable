@@ -38,6 +38,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QCloseEvent>
+#include <QDataStream>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -61,12 +62,30 @@ MainWindow::MainWindow(QWidget *parent) :
             SLOT(changeStageTitle(int)));
     connect(ui->actExitFullscreen, SIGNAL(triggered()),
             SLOT(exitFullscreen()));
+    connect(ui->actSaveAs, SIGNAL(triggered()), SLOT(saveAs()));
 
     ui->lblDate->setText(QDate(QDate::currentDate()).toString("dd.MM.yyyy"));
 
     showMaximized();
 
     ui->statusBar->showMessage("Готов", 1000);
+}
+
+void MainWindow::saveAs()
+{
+    QList<TableItems> tables;
+
+    for (int i = 0; i < ui->tabs->count(); i++) {
+        tables << qobject_cast<TableStandings *>(ui->tabs->widget(i))->items();
+    }
+
+    QFile file("test");
+    file.open(QIODevice::WriteOnly);
+
+    QDataStream data(&file);
+
+    data << tables;
+    qDebug() << "done";
 }
 
 void MainWindow::changeStageTitle(int curr)

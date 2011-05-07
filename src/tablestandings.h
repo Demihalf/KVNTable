@@ -31,6 +31,8 @@
 
 #include <QTableWidget>
 
+typedef QVector<QVector<QTableWidgetItem> > TableItems;
+
 class TableStandings : public QTableWidget
 {
     Q_OBJECT
@@ -42,6 +44,7 @@ public:
     virtual ~TableStandings() {}
 
     void resizeTeamSection(int newSize);
+    virtual TableItems items();
 
 signals:
     void teamSectionWidthChanged(int newSize);

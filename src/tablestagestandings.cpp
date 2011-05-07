@@ -36,6 +36,7 @@ TableStageStandings::TableStageStandings(const QStringList &teams, int numOfMark
 {
     setColumnCount(m_numOfMiddleCells + 3 + (m_stageNumber != 0 ? 1 : 0));
 
+    createHeader();
     createCells();
 
     connect(this, SIGNAL(cellChanged(int,int)), SLOT(recalculateAverage()));
