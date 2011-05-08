@@ -80,8 +80,6 @@ void MainWindow::openTable()
                               "Файлы турнирных таблиц КВН (*.kvn)");
 
     if (!fileName.isEmpty()) {
-        m_stages.clear();
-
         QList<TableData> data;
 
         QFile f(fileName);
@@ -91,22 +89,29 @@ void MainWindow::openTable()
         stream >> m_stages;
         stream >> data;
 
-        deleteTabs();
+        if (stream.status() == QDataStream::Ok) {
+            deleteTabs();
+            m_stages.clear();
 
-        for (int i = 0; i < data.size() - 1; i++) {
-            TableStageStandings *wgt = new TableStageStandings(QStringList(),
-                                                               5, i);
-            wgt->setData(data[i]);
-            ui->tabs->addTab(wgt, m_stages.at(i));
+            for (int i = 0; i < data.size() - 1; i++) {
+                TableStageStandings *wgt = new TableStageStandings(QStringList(),
+                                                                   5, i);
+                wgt->setData(data[i]);
+                ui->tabs->addTab(wgt, m_stages.at(i));
 
-            connect(wgt, SIGNAL(marksChanged()), SLOT(marksChangedStage()));
-            connect(wgt, SIGNAL(teamSectionWidthChanged(int)),
-                    SLOT(resizeTeamSections(int)));
+                connect(wgt, SIGNAL(marksChanged()), SLOT(marksChangedStage()));
+                connect(wgt, SIGNAL(teamSectionWidthChanged(int)),
+                        SLOT(resizeTeamSections(int)));
+            }
+
+            TableTotalStandings *total = new TableTotalStandings(m_stages, QStringList());
+            total->setData(data.last());
+            ui->tabs->addTab(total, "Общий итог");
+        } else {
+            QMessageBox::critical(this, "Ошибка!", "Выбранный вами файл не "
+                                  "является корректным файлом турннирной "
+                                  "таблицы КВН!");
         }
-
-        TableTotalStandings *total = new TableTotalStandings(m_stages, QStringList());
-        total->setData(data.last());
-        ui->tabs->addTab(total, "Общий итог");
     }
 }
 

@@ -86,7 +86,7 @@
      <x>0</x>
      <y>0</y>
      <width>637</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -239,10 +239,16 @@
    <property name="toolTip">
     <string>Сохранить таблицу в файл</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="actOpen">
    <property name="text">
     <string>Открыть</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>
