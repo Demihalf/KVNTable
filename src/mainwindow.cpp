@@ -91,7 +91,6 @@ void MainWindow::openTable()
 
         if (stream.status() == QDataStream::Ok) {
             deleteTabs();
-            m_stages.clear();
 
             for (int i = 0; i < data.size() - 1; i++) {
                 TableStageStandings *wgt = new TableStageStandings(QStringList(),
