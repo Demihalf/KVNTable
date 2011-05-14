@@ -12,14 +12,18 @@ SOURCES  += main.cpp\
     tabletotalstandings.cpp \
     newtabledialog.cpp \
     tablestandings.cpp \
-    settingsdialog.cpp
+    settingsdialog.cpp \
+    tablecontroller.cpp \
+    stagestandingsmodel.cpp
 HEADERS  += mainwindow.h \
     buttonslistwidget.h \
     tablestagestandings.h \
     newtabledialog.h \
     tabletotalstandings.h \
     tablestandings.h \
-    settingsdialog.h
+    settingsdialog.h \
+    tablecontroller.h \
+    stagestandingsmodel.h
 FORMS    += mainwindow.ui \
     buttonslistwidget.ui \
     newtabledialog.ui \
@@ -42,3 +46,7 @@ INSTALLS += target icon
 MOC_DIR = ../tmp
 OBJECTS_DIR = ../tmp
 RCC_DIR = ../tmp
+
+
+
+
