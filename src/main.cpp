@@ -44,14 +44,14 @@ int main(int argc, char *argv[])
                       QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     a.installTranslator(&qtTranslator);
 
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
+
     QCoreApplication::setOrganizationName("Валерий Харитонов");
     QCoreApplication::setApplicationName("Турнирная таблица КВН");
     QCoreApplication::setApplicationVersion("0.2");
 
     a.setProperty("iniFile", QVariant("settings.ini"));
-
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
-    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
 
     QFile style("style.css");
 

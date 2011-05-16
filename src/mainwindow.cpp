@@ -318,6 +318,7 @@ void MainWindow::about()
     f.open(QIODevice::ReadOnly | QIODevice::Text);
 
     QTextStream stream(&f);
+    stream.setCodec("utf-8");
 
     QString about = stream.readAll().arg(qApp->applicationName())
             .arg(qApp->applicationVersion()).replace("\n", " ");
