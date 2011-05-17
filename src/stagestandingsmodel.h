@@ -26,15 +26,7 @@
 #include <QAbstractTableModel>
 #include <QVector>
 #include <QStringList>
-
-// Just a convenience POD struct
-struct Team {
-    QString Name;
-    QVector<int> Grades;
-    double Penalty;
-    double Average;
-    double Total;
-};
+#include <tablecontainer.h>
 
 /*
   [Team] [Judge 1] [Judge 2] ... [Judge N] [Penalty] [Average] [Total]
