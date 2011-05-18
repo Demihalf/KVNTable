@@ -39,12 +39,12 @@ StageStandingsModel::StageStandingsModel(int in_judgesCount, int in_stageNum,
         m_headerLabels << tr("Total");
     }
 
-    connect(this, SIGNAL(marksChanged(int)), SLOT(updateAverage(int)));
+    connectContainerSignals();
 }
 
 int StageStandingsModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return m_teams.size();
+    return m_container->teamsCount();
 }
 
 int StageStandingsModel::columnCount(const QModelIndex & /*parent*/) const
@@ -60,24 +60,17 @@ bool StageStandingsModel::insertRows(int row, int count,
         return false;
     }
 
+    disconnectContainerSignals();
+
     beginInsertRows(QModelIndex(), row, row + count - 1);
 
     for (int i = 0; i < count; i++) {
-        Team tmp;
-        tmp.Name = "";
-        tmp.Average = -1;
-        tmp.Penalty = -1;
-        tmp.Total = -1;
-        tmp.Grades.resize(m_judgesCount);
-
-        for (int j = 0; j < tmp.Grades.size(); j++) {
-            tmp.Grades.replace(j, -1);
-        }
-
-        m_teams.insert(row + i, tmp);
+        m_container->insertTeam(row);
     }
 
     endInsertRows();
+
+    connectContainerSignals();
 
     return true;
 }
@@ -89,13 +82,17 @@ bool StageStandingsModel::removeRows(int row, int count,
         return false;
     }
 
+    disconnectContainerSignals();
+
     beginRemoveRows(QModelIndex(), row, row + count - 1);
 
     for (int i = 0; i < count; i++) {
-        m_teams.removeAt(row + i);
+        m_container->removeTeam(row);
     }
 
     endRemoveRows();
+
+    connectContainerSignals();
 
     return true;
 }
@@ -113,36 +110,35 @@ QVariant StageStandingsModel::headerData(int section, Qt::Orientation orientatio
 QVariant StageStandingsModel::data(const QModelIndex & index, int role) const
 {
     if (index.isValid() && role == Qt::DisplayRole) {
-        Team tmp = m_teams.at(index.row());
-
         int col = index.column();
+        int row = index.row();
 
         // Team name
         if (col == 0) {
-            return tmp.Name;
+            return m_container->teamName(row);
         }
 
         // Marks
         if (col >= 1 && col <= m_judgesCount) {
-            int grade = tmp.Grades.at(col - 1);
+            int grade = m_container->grade(row, m_stageNum, col - 1);
             return (grade == -1 ? "" : QString("%1").arg(grade));
         }
 
         // Penalty
         if (col == m_judgesCount + 1) {
-            double penalty = tmp.Penalty;
+            double penalty = m_container->penalty(row, m_stageNum);
             return (penalty == -1 ? "" : QString("%1").arg(penalty));
         }
 
         // Average
         if (col == m_judgesCount + 2) {
-            double average = tmp.Average;
+            double average = m_container->average(row, m_stageNum);
             return (average == -1 ? "" : QString("%1").arg(average));
         }
 
         // Total
         if (m_stageNum != 0 && col == m_judgesCount + 3) {
-            double total = tmp.Total;
+            double total = m_container->total(row, m_stageNum);
             return (total == -1 ? "" : QString("%1").arg(total));
         }
 
@@ -160,28 +156,25 @@ bool StageStandingsModel::setData(const QModelIndex & index, const QVariant & va
             return false;
         }
 
-        Team tmp = m_teams.at(index.row());
-
         int col = index.column();
         int row = index.row();
 
+        disconnectContainerSignals();
+
         // Team name
         if (col == 0) {
-            tmp.Name = value.toString();
-            m_teams.replace(row, tmp);
-            emit teamNameChanged(row, tmp.Name);
+            m_container->setTeamName(row, value.toString());
         }
 
         // Marks
         if (col >= 1 && col <= m_judgesCount) {
-            tmp.Grades.replace(col - 1, value.toString().toInt());
-            emit marksChanged(row);
+            m_container->setGrade(row, m_stageNum, col - 1,
+                                  value.toString().toInt());
         }
 
         // Penalty
         if (col == m_judgesCount + 1) {
-            tmp.Penalty = value.toString().toDouble();
-            emit marksChanged(row);
+            m_container->setPenalty(row, m_stageNum, value.toString().toDouble());
         }
 
         // Average
@@ -195,6 +188,9 @@ bool StageStandingsModel::setData(const QModelIndex & index, const QVariant & va
         }
 
         emit dataChanged(index, index);
+
+        connectContainerSignals();
+
         return true;
     }
 
@@ -223,46 +219,90 @@ Qt::ItemFlags StageStandingsModel::flags(const QModelIndex & index) const
     return QAbstractTableModel::flags(index);
 }
 
-void StageStandingsModel::updateAverage(int team)
+void StageStandingsModel::teamAboutToBeInserted(int index)
 {
-    Team tmp = m_teams.at(team);
+    beginInsertRows(QModelIndex(), index, index);
+}
 
-    double sum = 0;
-    for (int j = 0; j < m_judgesCount; j++) {
-        sum += tmp.Grades.at(j);
+void StageStandingsModel::teamInserted(int index)
+{
+    endInsertRows();
+}
+
+void StageStandingsModel::teamAboutToBeRemoved(int index)
+{
+    beginRemoveRows(QModelIndex(), index, index);
+}
+
+void StageStandingsModel::teamRemoved(int index)
+{
+    endRemoveRows();
+}
+
+void StageStandingsModel::teamNameChanged(int i)
+{
+    emit dataChanged(index(i, 0), index(i, 0));
+}
+
+void StageStandingsModel::gradeChanged(int team, int stage, int judge)
+{
+    if (stage == m_stageNum) {
+        emit dataChanged(index(team, judge + 1), index(team, judge + 1));
     }
-    sum -= tmp.Penalty;
-
-    m_teams.replace(team, tmp);
-
-    // Averages have been changed
-    emit dataChanged(this->index(team, m_judgesCount + 2),
-                     this->index(team, m_judgesCount + 2));
-    emit averageChanged(team);
 }
 
-double StageStandingsModel::averageAt(int index)
+void StageStandingsModel::penaltyChanged(int team, int stage)
 {
-    return m_teams.at(index).Average;
+    if (stage == m_stageNum) {
+        emit dataChanged(index(team, m_judgesCount + 1),
+                         index(team, m_judgesCount + 1));
+    }
 }
 
-void StageStandingsModel::setTotalAt(int index, double total)
+void StageStandingsModel::averagesChanged(int stage)
 {
-    Team tmp = m_teams.at(index);
-    tmp.Total = total;
-
-    m_teams.replace(index, tmp);
-
-    emit dataChanged(this->index(index, m_judgesCount + 3),
-                     this->index(index, m_judgesCount + 3));
+    if (stage == m_stageNum) {
+        emit dataChanged(index(0, m_judgesCount + 2),
+                         index(rowCount(), m_judgesCount + 2));
+    }
 }
 
-void StageStandingsModel::setTeamNameAt(int index, const QString &name)
+void StageStandingsModel::totalsChanged()
 {
-    Team tmp = m_teams.at(index);
-    tmp.Name = name;
-
-    m_teams.replace(index, tmp);
-
-    emit dataChanged(this->index(index, 0), this->index(index, 0));
+    if (stage != 0) {
+        emit dataChanged(index(0, m_judgesCount + 3),
+                         index(rowCount(), m_judgesCount + 3));
+    }
 }
+
+void StageStandingsModel::connectContainerSignals()
+{
+    connect(m_container, SIGNAL(teamAboutToBeInserted(int)),
+            SLOT(teamAboutToBeInserted(int));
+    connect(m_container, SIGNAL(teamInserted(int)), SLOT(teamInserted(int)));
+    connect(m_container, SIGNAL(teamAboutToBeRemoved(int)),
+            SLOT(teamAboutToBeRemoved(int)));
+    connect(m_container, SIGNAL(teamRemoved(int)), SLOT(teamRemoved(int)));
+    connect(m_container, SIGNAL(teamNameChanged(int)),
+            SLOT(teamNameChanged(int)));
+    connect(m_container, SIGNAL(gradeChanged(int,int,int)),
+            SLOT(gradeChanged(int,int,int)));
+    connect(m_container, SIGNAL(penaltyChanged(int,int)),
+            SLOT(penaltyChanged(int,int)));
+    connect(m_container, SIGNAL(averagesChanged(int)), SLOT(averagesChanged(int)));
+    connect(m_container, SIGNAL(totalsChanged()), SLOT(totalsChanged()));
+}
+
+void StageStandingsModel::disconnectContainerSignals()
+{
+    disconnect(this, SLOT(teamAboutToBeInserted(int)));
+    disconnect(this, SLOT(teamInserted(int)));
+    disconnect(this, SLOT(teamAboutToBeRemoved(int)));
+    disconnect(this, SLOT(teamRemoved(int)));
+    disconnect(this, SLOT(teamNameChanged(int)));
+    disconnect(this, SLOT(gradeChanged(int,int,int)));
+    disconnect(this, SLOT(penaltyChanged(int,int)));
+    disconnect(this, SLOT(averagesChanged(int)));
+    disconnect(this, SLOT(totalsChanged()));
+}
+

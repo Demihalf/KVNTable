@@ -53,26 +53,28 @@ public:
     bool removeRows(int row, int count,
                     const QModelIndex & parent = QModelIndex());
 
-    double averageAt(int index);
-    void setTotalAt(int index, double total);
-    void setTeamNameAt(int index, const QString &name);
+private slots:
+    void teamAboutToBeInserted(int index);
+    void teamInserted(int index);
 
-public slots:
-    void updateAverage(int team);
+    void teamAboutToBeRemoved(int index);
+    void teamRemoved(int index);
 
-signals:
-    void teamNameChanged(int team, const QString &newName);
-
-    // Including penalty
-    void marksChanged(int team);
-    void averageChanged(int team);
+    void teamNameChanged(int i);
+    void gradeChanged(int team, int stage, int judge);
+    void penaltyChanged(int team, int stage);
+    void averagesChanged(int stage);
+    void totalsChanged();
 
 private:
+    void connectContainerSignals();
+    void disconnectContainerSignals();
+
     int m_stageNum;
     int m_judgesCount;
 
+    TableContainer *m_container;
     QStringList m_headerLabels;
-    QList<Team> m_teams;
 };
 
 #endif // STAGESTANDINGSMODEL_H
