@@ -21,8 +21,81 @@
 ******************************************************************************/
 
 #include "tablecontroller.h"
+#include "totalstandingsmodel.h"
+#include "stagestandingsmodel.h"
 
-//TableController::TableController(QObject *parent) :
-//    QObject(parent)
-//{
-//}
+TableController::TableController(int in_judgesCount, QObject *parent) :
+    QObject(parent)
+{
+    m_container = new TableContainer(in_judgesCount, this);
+
+    m_totalModel = new TotalStandingsModel(m_container, this);
+}
+
+void TableController::addTeam(const QString &name)
+{
+    int num = m_container->teamsCount();
+
+    m_container->addTeam();
+    m_container->setTeamName(num, name);
+}
+
+void TableController::removeTeam(int i)
+{
+    m_container->removeTeam(i);
+}
+
+void TableController::insertTeam(int i, Team *team)
+{
+    m_container->insertTeam(i, team);
+}
+
+Team* TableController::takeTeamAt(int i)
+{
+    return m_container->takeTeam(i);
+}
+
+StageStandingsModel * TableController::addStage(const QString &name)
+{
+    int num = m_container->stagesCount();
+
+    m_container->addStage();
+
+    StageStandingsModel *tmp = new StageStandingsModel(m_container, num, this);
+    m_stageModels << tmp;
+
+    return tmp;
+}
+
+StageStandingsModel * TableController::stageAt(int i)
+{
+    return m_stageModels.at(i);
+}
+
+void TableController::insertStage(int i, StageStandingsModel *stage)
+{
+
+}
+
+StageStandingsModel * TableController::takeStageAt(int i)
+{
+    StageStandingsModel *tmp = m_stageModels.at(i);
+    tmp->setStageNumber(-1);
+
+}
+
+void TableController::removeStage(int i)
+{
+
+}
+
+TotalStandingsModel * TableController::totalModel()
+{
+
+}
+
+void TableController::clearAll()
+{
+
+}
+

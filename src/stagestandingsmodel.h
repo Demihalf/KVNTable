@@ -39,6 +39,11 @@ public:
     StageStandingsModel(TableContainer *container, int in_stageNum,
                         QObject *parent = 0);
 
+    int stageNumber();
+
+    // Only sets m_stageNum and resets the model
+    void setStageNumber(int num);
+
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;

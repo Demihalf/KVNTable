@@ -43,6 +43,20 @@ StageStandingsModel::StageStandingsModel(TableContainer *container, int in_stage
     connectContainerSignals();
 }
 
+int StageStandingsModel::stageNumber()
+{
+    return m_stageNum;
+}
+
+void StageStandingsModel::setStageNumber(int num)
+{
+    beginResetModel();
+
+    m_stageNum = num;
+
+    endResetModel();
+}
+
 int StageStandingsModel::rowCount(const QModelIndex & /*parent*/) const
 {
     return m_container->teamsCount();
