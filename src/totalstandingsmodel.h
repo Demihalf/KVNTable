@@ -24,17 +24,45 @@
 #define TOTALSTANDINGSMODEL_H
 
 #include <QAbstractTableModel>
+#include "tablecontainer.h"
 
+// [Team] [Stage 1] [Stage 2] ... [Stage n] [Overall]
 class TotalStandingsModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit TotalStandingsModel(QObject *parent = 0);
+    TotalStandingsModel(TableContainer *container, QObject *parent = 0);
 
-signals:
+    int rowCount(const QModelIndex & parent = QModelIndex()) const;
+    int columnCount(const QModelIndex & parent = QModelIndex()) const;
+    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex & index, const QVariant & value,
+                 int role = Qt::EditRole);
+    Qt::ItemFlags flags(const QModelIndex & index) const;
 
-public slots:
+private slots:
+    void teamAboutToBeInserted(int index);
+    void teamInserted(int index);
 
+    void teamAboutToBeRemoved(int index);
+    void teamRemoved(int index);
+
+    void stageAboutToBeInserted(int index);
+    void stageInserted(int index);
+
+    void stageAboutToBeRemoved(int index);
+    void stageRemoved(int index);
+
+    void teamNameChanged(int i);
+    void averagesChanged(int stage);
+
+private:
+    void connectContainerSignals();
+    void disconnectContainerSignals();
+
+    TableContainer *m_container;
 };
 
 #endif // TOTALSTANDINGSMODEL_H
