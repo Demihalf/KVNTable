@@ -22,12 +22,13 @@
 
 #include "stagestandingsmodel.h"
 
-StageStandingsModel::StageStandingsModel(int in_judgesCount, int in_stageNum,
+StageStandingsModel::StageStandingsModel(TableContainer *container, int in_stageNum,
                                          QObject *parent) :
-    QAbstractTableModel(parent)
+    QAbstractTableModel(parent), m_stageNum(in_stageNum), m_container(container)
 {
-    m_judgesCount = in_judgesCount;
-    m_stageNum = in_stageNum;
+    Q_ASSERT(m_container);
+
+    m_judgesCount = m_container->judgesCount();
 
     m_headerLabels << tr("Team");
     for (int i = 1; i <= m_judgesCount; i++) {
@@ -53,58 +54,14 @@ int StageStandingsModel::columnCount(const QModelIndex & /*parent*/) const
     return m_judgesCount + 3 + (m_stageNum != 1 ? 1 : 0);
 }
 
-bool StageStandingsModel::insertRows(int row, int count,
-                                     const QModelIndex & /*parent*/)
-{
-    if (row > rowCount()) {
-        return false;
-    }
-
-    disconnectContainerSignals();
-
-    beginInsertRows(QModelIndex(), row, row + count - 1);
-
-    for (int i = 0; i < count; i++) {
-        m_container->insertTeam(row);
-    }
-
-    endInsertRows();
-
-    connectContainerSignals();
-
-    return true;
-}
-
-bool StageStandingsModel::removeRows(int row, int count,
-                                     const QModelIndex & /*parent*/)
-{
-    if (row > rowCount() - count) {
-        return false;
-    }
-
-    disconnectContainerSignals();
-
-    beginRemoveRows(QModelIndex(), row, row + count - 1);
-
-    for (int i = 0; i < count; i++) {
-        m_container->removeTeam(row);
-    }
-
-    endRemoveRows();
-
-    connectContainerSignals();
-
-    return true;
-}
-
 QVariant StageStandingsModel::headerData(int section, Qt::Orientation orientation,
                                          int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         return m_headerLabels.at(section);
-    } else {
-        return QVariant();
     }
+
+    return QVariant();
 }
 
 QVariant StageStandingsModel::data(const QModelIndex & index, int role) const
@@ -177,19 +134,16 @@ bool StageStandingsModel::setData(const QModelIndex & index, const QVariant & va
             m_container->setPenalty(row, m_stageNum, value.toString().toDouble());
         }
 
-        // Average
-        if (col == m_judgesCount + 2) {
-            return false;
-        }
+        connectContainerSignals();
 
-        // Total
-        if (m_stageNum != 0 && col == m_judgesCount + 3) {
+        // Average and total (not editable)
+        if (col == m_judgesCount + 2 ||
+            (m_stageNum != 0 && col == m_judgesCount + 3))
+        {
             return false;
         }
 
         emit dataChanged(index, index);
-
-        connectContainerSignals();
 
         return true;
     }
@@ -278,7 +232,7 @@ void StageStandingsModel::totalsChanged()
 void StageStandingsModel::connectContainerSignals()
 {
     connect(m_container, SIGNAL(teamAboutToBeInserted(int)),
-            SLOT(teamAboutToBeInserted(int));
+            SLOT(teamAboutToBeInserted(int)));
     connect(m_container, SIGNAL(teamInserted(int)), SLOT(teamInserted(int)));
     connect(m_container, SIGNAL(teamAboutToBeRemoved(int)),
             SLOT(teamAboutToBeRemoved(int)));

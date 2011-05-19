@@ -36,7 +36,7 @@ class StageStandingsModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    StageStandingsModel(int in_judgesCount, int in_stageNum,
+    StageStandingsModel(TableContainer *container, int in_stageNum,
                         QObject *parent = 0);
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
@@ -47,11 +47,6 @@ public:
     bool setData(const QModelIndex & index, const QVariant & value,
                  int role = Qt::EditRole);
     Qt::ItemFlags flags(const QModelIndex & index) const;
-
-    bool insertRows(int row, int count,
-                    const QModelIndex & parent = QModelIndex());
-    bool removeRows(int row, int count,
-                    const QModelIndex & parent = QModelIndex());
 
 private slots:
     void teamAboutToBeInserted(int index);

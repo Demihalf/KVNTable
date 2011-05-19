@@ -46,6 +46,11 @@ int TableContainer::stagesCount()
     return m_stagesCount;
 }
 
+int TableContainer::judgesCount()
+{
+    return m_judgesCount;
+}
+
 void TableContainer::addTeam()
 {
     insertTeam(m_teams, 0);

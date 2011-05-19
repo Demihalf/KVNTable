@@ -37,6 +37,7 @@ public:
 
     int teamsCount();
     int stagesCount();
+    int judgesCount();
 
     void addTeam();
     void removeTeam(int i);
