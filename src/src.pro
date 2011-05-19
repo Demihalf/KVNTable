@@ -13,7 +13,8 @@ SOURCES  += main.cpp\
     tablecontroller.cpp \
     stagestandingsmodel.cpp \
     tablecontainer.cpp \
-    team.cpp
+    team.cpp \
+    totalstandingsmodel.cpp
 HEADERS  += mainwindow.h \
     buttonslistwidget.h \
     newtabledialog.h \
@@ -21,7 +22,8 @@ HEADERS  += mainwindow.h \
     tablecontroller.h \
     stagestandingsmodel.h \
     tablecontainer.h \
-    team.h
+    team.h \
+    totalstandingsmodel.h
 FORMS    += mainwindow.ui \
     buttonslistwidget.ui \
     newtabledialog.ui \
@@ -44,6 +46,8 @@ INSTALLS += target icon
 MOC_DIR = ../tmp
 OBJECTS_DIR = ../tmp
 RCC_DIR = ../tmp
+
+
 
 
 
